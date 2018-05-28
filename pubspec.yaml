@@ -3,3 +3,4 @@ version: 1.0.0
 description: Open Simplex Noise implemented in Dart
 environment:
   sdk: '>=1.0.0 <2.0.0'
+

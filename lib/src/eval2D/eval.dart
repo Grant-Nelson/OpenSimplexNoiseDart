@@ -13,7 +13,7 @@ class Eval {
   // sqrt(2 + 1) - 1
   static const double _squish2 = 0.732050807568878;
 
-  static const double _norm2D = 47.0;
+  static const double _norm = 47.0;
 
   // Gradients for 2D. They approximate the directions to the
   // vertices of an octagon from the center.
@@ -33,15 +33,15 @@ class Eval {
   Eval(this._perm);
 
   double _extrapolate(Point grid, Point delta) {
-    int index = _perm[(_perm[grid.x.toInt() & 0xFF] + grid.y.toInt()) & 0xFF] & 0x0E >> 1;
+    int index = (_perm[(_perm[grid.x.toInt() & 0xFF] + grid.y.toInt()) & 0xFF] & 0x0E) >> 1;
     return _gradients2D[index].x * delta.x + _gradients2D[index].y * delta.y;
   }
 
   double _attnValue(Point grid, Point delta) {
     double attn = delta.attn;
     if (attn > 0.0) {
-      attn *= attn;
-      return attn * attn * _extrapolate(grid, delta);
+      double attn2 = attn * attn;
+      return attn2 * attn2 * _extrapolate(grid, delta);
     }
     return 0.0;
   }
@@ -70,18 +70,16 @@ class Eval {
 
     double value = 0.0;
 
-    // Contribution (1,0)
-    Point d1 = origin.add(-1.0 - _squish, -_squish);
-    value += _attnValue(grid, d1);
+    // Contribution (1, 0)
+    value += _attnValue(grid.add(1.0, 0.0), origin.add(-1.0 - _squish, -_squish));
 
-    // Contribution (0,1)
-    Point d2 = origin.add(-_squish, -1.0 - _squish);
-    value += _attnValue(grid, d2);
+    // Contribution (0, 1)
+    value += _attnValue(grid.add(0.0, 1.0), origin.add(-_squish, -1.0 - _squish));
 
     Point gridExt;
     Point deltaExt;
     if (inSum <= 1.0) {
-      // Inside the triangle (2-Simplex) at (0,0)
+      // Inside the triangle (2-Simplex) at (0, 0)
       double zins = 1.0 - inSum;
       if (zins > ins.x || zins > ins.y) {
         // (0,0) is one of the closest two triangular vertices
@@ -97,6 +95,9 @@ class Eval {
         gridExt = grid.offset(1.0);
         deltaExt = origin.offset(-1.0 - _squish2);
       }
+
+      // Contribution (0,0)
+      value += _attnValue(grid, origin);
     } else {
       // Inside the triangle (2-Simplex) at (1,1)
       double zins = 2 - inSum;
@@ -115,16 +116,13 @@ class Eval {
         deltaExt = origin;
       }
 
-      grid = grid.offset(1.0);
-      origin = origin.offset(-1.0 - _squish2);
+      // Contribution (1,1)
+      value += _attnValue(grid.offset(1.0), origin.offset(-1.0 - _squish2));
     }
-
-    // Contribution (0,0) or (1,1)
-    value += _attnValue(grid, origin);
 
     // Extra Vertex
     value += _attnValue(gridExt, deltaExt);
 
-    return value / _norm2D;
+    return value / _norm;
   }
 }

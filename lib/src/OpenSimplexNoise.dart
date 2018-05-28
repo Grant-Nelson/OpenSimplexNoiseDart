@@ -1,6 +1,6 @@
 library OpenSimplexNoise;
 
-import 'eval2D/eval.dart' as eval2D;
+import 'eval2D/eval.dart' as e2D;
 
 part 'eval3D.dart';
 part 'eval4D.dart';
@@ -15,12 +15,11 @@ part 'eval4D.dart';
 /// For more information: http://uniblock.tumblr.com/post/97868843242/noise
 /// or https://gist.github.com/KdotJPG/b1270127455a94ac5d19
 class OpenSimplexNoise {
-  List<int> _perm;
-  eval2D.Eval _eval2D;
+  e2D.Eval _eval2D;
 
   // Initializes using the given permutation array.
-  OpenSimplexNoise.fromPerm(this._perm) {
-    _eval2D = new eval2D.Eval(_perm);
+  OpenSimplexNoise.fromPerm(_perm) {
+    _eval2D = new e2D.Eval(_perm);
   }
 
   // Initializes using a permutation array generated from a seed.
@@ -32,12 +31,12 @@ class OpenSimplexNoise {
 
     const int seedMul = 6364136223846793005;
     const int seedAdd = 1442695040888963407;
-    seed = seed * seedMul + seedAdd;
-    seed = seed * seedMul + seedAdd;
-    seed = seed * seedMul + seedAdd;
+    seed = (seed * seedMul + seedAdd).toSigned(64);
+    seed = (seed * seedMul + seedAdd).toSigned(64);
+    seed = (seed * seedMul + seedAdd).toSigned(64);
 
     for (int i = 255; i >= 0; i--) {
-      seed = seed * seedMul + seedAdd;
+      seed = (seed * seedMul + seedAdd).toSigned(64);
       int r = ((seed + 31) % (i + 1));
       if (r < 0) r += (i + 1);
       perm[i] = source[r];
@@ -49,7 +48,7 @@ class OpenSimplexNoise {
 
   // Calculates 2D OpenSimplex Noise for the given 2D point.
   double eval2D(double x, double y) {
-    return _eval2D.eval(x, y);
+    return _eval2D.eval(new e2D.Point(x, y));
   }
 
   // Calculates 3D OpenSimplex Noise for the given 3D point.
