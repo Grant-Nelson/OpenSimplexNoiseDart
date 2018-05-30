@@ -1,8 +1,8 @@
 library OpenSimplexNoise;
 
 import 'eval2D/eval.dart' as e2D;
+import 'eval3D/eval.dart' as e3D;
 
-part 'eval3D.dart';
 part 'eval4D.dart';
 
 /// This generates smoothly-changing deterministic random values in
@@ -16,10 +16,12 @@ part 'eval4D.dart';
 /// or https://gist.github.com/KdotJPG/b1270127455a94ac5d19
 class OpenSimplexNoise {
   e2D.Eval _eval2D;
+  e3D.Eval _eval3D;
 
   // Initializes using the given permutation array.
   OpenSimplexNoise.fromPerm(_perm) {
     _eval2D = new e2D.Eval(_perm);
+    _eval3D = new e3D.Eval(_perm);
   }
 
   // Initializes using a permutation array generated from a seed.
@@ -53,7 +55,7 @@ class OpenSimplexNoise {
 
   // Calculates 3D OpenSimplex Noise for the given 3D point.
   double eval3D(double x, double y, double z) {
-    return 0.0; // TODO: Replace
+    return _eval3D.eval(new e3D.Point(x, y, z));
   }
 
   // Calculates 4D OpenSimplex Noise for the given 4D point.

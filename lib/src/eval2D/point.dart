@@ -12,15 +12,11 @@ class Point {
 
   double get attn => 2.0 - (x * x) - (y * y);
 
-  Point offset(double value) => new Point(x + value, y + value);
-
   Point add(double dx, double dy) => new Point(x + dx, y + dy);
 
   Point operator +(Point other) => new Point(x + other.x, y + other.y);
 
   Point operator -(Point other) => new Point(x - other.x, y - other.y);
-
-  Point operator *(double scalar) => new Point(x * scalar, y * scalar);
 
   @override
   String toString() => "$x, $y";
