@@ -13,6 +13,16 @@ class Extra {
     delta1 = origin;
   }
 
+  void add0(double gridX, double gridY, double gridZ, double deltaX, double deltaY, double deltaZ) {
+    grid0 = grid0.add(gridX, gridY, gridZ);
+    delta0 = delta0.add(deltaX, deltaY, deltaZ);
+  }
+
+  void add1(double gridX, double gridY, double gridZ, double deltaX, double deltaY, double deltaZ) {
+    grid1 = grid1.add(gridX, gridY, gridZ);
+    delta1 = delta1.add(deltaX, deltaY, deltaZ);
+  }
+
   void addX(double grid0val, double grid1val, double delta0val, double delta1val) {
     grid0 = grid0.addX(grid0val);
     grid1 = grid1.addX(grid1val);

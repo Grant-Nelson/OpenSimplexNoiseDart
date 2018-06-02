@@ -58,7 +58,7 @@ class Eval {
     _permGradIndex = new List<int>(256);
     for (int i = 0; i < 256; i++) {
       //Since 3D has 24 gradients, simple bitmask won't work, so precompute modulo array.
-      _permGradIndex[i] = _perm[i] % (_gradients.length ~/ 3);
+      _permGradIndex[i] = (_perm[i] % _gradients.length);
     }
   }
 
@@ -91,7 +91,7 @@ class Eval {
     Point squish = grid.add(squishOffset, squishOffset, squishOffset); // TODO: xb, yb, zb
 
     // Compute simplectic honeycomb coordinates relative to rhombohedral origin.
-    Point ins = squish - grid; // TODO: xins, yins, zins
+    Point ins = stretch - grid; // TODO: xins, yins, zins
 
     // Sum those together to get a value that determines the region.
     double inSum = ins.sum;
@@ -101,7 +101,7 @@ class Eval {
 
     Extra extra = new Extra(grid, origin);
     double value = 0.0;
-    if (inSum <= 1) {
+    if (inSum <= 1.0) {
       // Inside the tetrahedron (3-Simplex) at (0, 0, 0)
 
       // Determine which two of (0, 0, 1), (0, 1, 0), (1, 0, 0) are closest.
@@ -177,10 +177,10 @@ class Eval {
       value += _attnValue(grid.add(1.0, 0.0, 0.0), origin.add(-1.0 - _squish, -_squish, -_squish));
 
       // Contribution (0, 1, 0)
-      value += _attnValue(grid.add(0.0, 1.0, 0.0), origin.add(-_squish, -1.0 - _squish, 0.0));
+      value += _attnValue(grid.add(0.0, 1.0, 0.0), origin.add(-_squish, -1.0 - _squish, -_squish));
 
       // Contribution (0, 0, 1)
-      value += _attnValue(grid.add(0.0, 0.0, 1.0), origin.add(0.0, 0.0, -1.0 - _squish));
+      value += _attnValue(grid.add(0.0, 0.0, 1.0), origin.add(-_squish, -_squish, -1.0 - _squish));
     } else if (inSum >= 2) {
       // Inside the tetrahedron (3-Simplex) at (1, 1, 1)
 
@@ -206,16 +206,16 @@ class Eval {
         int closest = (bScore < aScore ? bPoint : aPoint);
 
         if ((closest & 0x01) != 0) {
-          extra.addX(2.0, 1.0, -2.0 - _squish2, -1.0 - _squish);
+          extra.addX(2.0, 1.0, -2.0 - _squish3, -1.0 - _squish3);
         } else {
-          extra.addX(0.0, 0.0, -_squish2, -_squish);
+          extra.addX(0.0, 0.0, -_squish3, -_squish3);
         }
 
         if ((closest & 0x02) != 0) {
           if ((closest & 0x01) != 0) {
-            extra.addY(1.0, 0.0, -1.0 - _squish3, -_squish3);
+            extra.addY(1.0, 2.0, -1.0 - _squish3, -2.0 - _squish3);
           } else {
-            extra.addY(0.0, 1.0, -_squish3, -1.0 - _squish3);
+            extra.addY(2.0, 1.0, -2.0 - _squish3, -1.0 - _squish3);
           }
         } else {
           extra.addY(0.0, 0.0, -_squish3, -_squish3);
@@ -327,39 +327,31 @@ class Eval {
           // Both closest points on (1, 1, 1) side
 
           // One of the two extra points is (1, 1, 1)
-          extra.delta0.add(-1.0 - _squish3, -1.0 - _squish3, -1.0 - _squish3);
-          extra.grid0.add(1.0, 1.0, 1.0);
+          extra.add0(1.0, 1.0, 1.0, -1.0 - _squish3, -1.0 - _squish3, -1.0 - _squish3);
 
           // Other extra point is based on the shared axis.
           int closest = aPoint & bPoint;
           if ((closest & 0x01) != 0) {
-            extra.delta1.add(-2.0 - _squish2, -_squish2, -_squish2);
-            extra.grid1.add(2.0, 0.0, 0.0);
+            extra.add1(2.0, 0.0, 0.0, -2.0 - _squish2, -_squish2, -_squish2);
           } else if ((closest & 0x02) != 0) {
-            extra.delta1.add(-_squish2, -2.0 - _squish2, -_squish2);
-            extra.grid1.add(0.0, 2.0, 0.0);
+            extra.add1(0.0, 2.0, 0.0, -_squish2, -2.0 - _squish2, -_squish2);
           } else {
-            extra.delta1.add(-_squish2, -_squish2, -2.0 - _squish2);
-            extra.grid1.add(0.0, 0.0, 2.0);
+            extra.add1(0.0, 0.0, 2.0, -_squish2, -_squish2, -2.0 - _squish2);
           }
         } else {
           // Both closest points on (0, 0, 0) side
 
           // One of the two extra points is (0, 0, 0)
-          extra.delta0.add(0.0, 0.0, 0.0);
-          extra.grid0.add(0.0, 0.0, 0.0);
+          extra.add0(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
           // Other extra point is based on the omitted axis.
           int closest = aPoint | bPoint;
           if ((closest & 0x01) == 0) {
-            extra.delta1.add(1.0 - _squish, -1.0 - _squish, -1.0 - _squish);
-            extra.grid1.add(-1.0, 1.0, 1.0);
+            extra.add1(-1.0, 1.0, 1.0, 1.0 - _squish, -1.0 - _squish, -1.0 - _squish);
           } else if ((closest & 0x02) == 0) {
-            extra.delta1.add(-1.0 - _squish, 1.0 - _squish, -1.0 - _squish);
-            extra.grid1.add(1.0, -1.0, 1.0);
+            extra.add1(1.0, -1.0, 1.0, -1.0 - _squish, 1.0 - _squish, -1.0 - _squish);
           } else {
-            extra.delta1.add(-1.0 - _squish, -1.0 - _squish, 1.0 - _squish);
-            extra.grid1.add(1.0, 1.0, -1.0);
+            extra.add1(1.0, 1.0, -1.0, -1.0 - _squish, -1.0 - _squish, 1.0 - _squish);
           }
         }
       } else {
@@ -375,31 +367,26 @@ class Eval {
 
         // One contribution is a permutation of (1, 1, -1)
         if ((c1 & 0x01) == 0) {
-          extra.delta0.add(1.0 - _squish, -1.0 - _squish, -1.0 - _squish);
-          extra.grid0.add(-1.0, 1.0, 1.0);
+          extra.add0(-1.0, 1.0, 1.0, 1.0 - _squish, -1.0 - _squish, -1.0 - _squish);
         } else if ((c1 & 0x02) == 0) {
-          extra.delta0.add(-1.0 - _squish, 1.0 - _squish, -1.0 - _squish);
-          extra.grid0.add(1.0, -1.0, 1.0);
+          extra.add0(1.0, -1.0, 1.0, -1.0 - _squish, 1.0 - _squish, -1.0 - _squish);
         } else {
-          extra.delta0.add(-1.0 - _squish, -1.0 - _squish, 1.0 - _squish);
-          extra.grid0.add(1.0, 1.0, -1.0);
+          extra.add0(1.0, 1.0, -1.0, -1.0 - _squish, -1.0 - _squish, 1.0 - _squish);
         }
 
         // One contribution is a permutation of (0, 0, 2)
         if ((c2 & 0x01) != 0) {
-          extra.delta1.add(-2.0 - _squish2, -_squish2, -_squish2);
-          extra.grid1.add(2.0, 0.0, 0.0);
+          extra.add1(2.0, 0.0, 0.0, -2.0 - _squish2, -_squish2, -_squish2);
         } else if ((c2 & 0x02) != 0) {
-          extra.delta1.add(-_squish2, -2.0 - _squish2, -_squish2);
-          extra.grid1.add(0.0, 2.0, 0.0);
+          extra.add1(0.0, 2.0, 0.0, -_squish2, -2.0 - _squish2, -_squish2);
         } else {
-          extra.delta1.add(-_squish2, -_squish2, -2.0 - _squish2);
-          extra.grid1.add(0.0, 0.0, 2.0);
+          extra.add1(0.0, 0.0, 2.0, -_squish2, -_squish2, -2.0 - _squish2);
         }
       }
 
       // Contribution (1, 0, 0)
-      value += _attnValue(grid.add(1.0, 0.0, 0.0), origin.add(-1.0 - _squish, -_squish, -_squish));
+      Point d1 = origin.add(-1.0 - _squish, -_squish, -_squish);
+      value += _attnValue(grid.add(1.0, 0.0, 0.0), d1);
 
       // Contribution (0, 1, 0)
       value += _attnValue(grid.add(0.0, 1.0, 0.0), origin.add(-_squish, -1.0 - _squish, -_squish));
@@ -408,13 +395,13 @@ class Eval {
       value += _attnValue(grid.add(0.0, 0.0, 1.0), origin.add(-_squish, -_squish, -1.0 - _squish));
 
       // Contribution (1, 1, 0)
-      value += _attnValue(grid.add(1.0, 1.0, 0.0), origin.add(-1.0 - _squish, -1.0 - _squish, -_squish));
+      value += _attnValue(grid.add(1.0, 1.0, 0.0), origin.add(-1.0 - _squish2, -1.0 - _squish2, -_squish2));
 
       // Contribution (1, 0, 1)
-      value += _attnValue(grid.add(1.0, 0.0, 1.0), origin.add(-1.0 - _squish, -_squish, -1.0 - _squish));
+      value += _attnValue(grid.add(1.0, 0.0, 1.0), origin.add(-1.0 - _squish2, -_squish2, -1.0 - _squish2));
 
       // Contribution (0, 1, 1)
-      value += _attnValue(grid.add(0.0, 1.0, 1.0), origin.add(-_squish, -1.0 - _squish, -1.0 - _squish));
+      value += _attnValue(grid.add(0.0, 1.0, 1.0), origin.add(-_squish2, -1.0 - _squish2, -1.0 - _squish2));
     }
 
     // First extra vertex
