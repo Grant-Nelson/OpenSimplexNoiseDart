@@ -1,24 +1,20 @@
 library eval2D;
 
-part 'extra.dart';
 part 'point.dart';
 
-// Open Simplex for 2D Noise
+/// Open Simplex for 2D Noise
 class Eval {
-  // (1 / sqrt(2 + 1) - 1) / 2
+  /// (1 / sqrt(2 + 1) - 1) / 2
   static const double _stretch = -0.211324865405187;
 
-  // (sqrt(2 + 1) - 1) / 2
+  /// (sqrt(2 + 1) - 1) / 2
   static const double _squish = 0.366025403784439;
 
-  // sqrt(2 + 1) - 1
-  static const double _squish2 = 0.732050807568878;
-
-  // Normalizing scalar to the result
+  /// Normalizing scalar to the result
   static const double _norm = 47.0;
 
-  // Gradients for 2D. They approximate the directions to the
-  // vertices of an octagon from the center.
+  /// Gradients for 2D. They approximate the directions to the
+  /// vertices of an octagon from the center.
   static List<Point> _gradients = [
     new Point(5.0, 2.0),
     new Point(2.0, 5.0),
@@ -30,95 +26,100 @@ class Eval {
     new Point(-2.0, -5.0)
   ];
 
-  List<int> _perm;
+  static final Point _pntStretch = new Point(_stretch, _stretch);
+  static final Point _pntSquish = new Point(_squish, _squish);
 
-  Eval(this._perm);
+  /// Noise permutation set.
+  final List<int> _perm;
 
+  /// The grid coordinates of rhombus (stretched square) super-cell origin.
+  final Point _grid;
+
+  /// The position relative to the origin point.
+  final Point _origin;
+
+  /// The grid coordinates relative to rhombus origin.
+  final Point _ins;
+
+  /// The accumulator of the noise value.
+  double _value;
+
+  /// Contructs a new evaluator for 2D noise.
+  Eval._(this._perm, this._grid, this._origin, this._ins) {
+    _value = 0.0;
+  }
+
+  /// Creates a new evaluator for 2D noise and calcuate the initial values.
+  factory Eval(List<int> perm, Point input) {
+    // stretch input coordinates onto grid.
+    final Point stretch = input + _pntStretch * input.sum;
+    final Point grid = stretch.floor;
+
+    // Skew out to get actual coordinates of rhombus origin.
+    final Point squashed = grid + _pntSquish * grid.sum;
+    final Point ins = stretch - grid;
+    final Point origin = input - squashed;
+    return new Eval._(perm, grid, origin, ins);
+  }
+
+  /// Extrapolates the offset grid point to the permutation of noise.
   double _extrapolate(Point grid, Point delta) {
-    int index = (_perm[(_perm[grid.x.toInt() & 0xFF] + grid.y.toInt()) & 0xFF] & 0x0E) >> 1;
-    Point pnt = _gradients[index];
+    final int index0 = (_perm[grid.x.toInt() & 0xFF] + grid.y.toInt()) & 0xFF;
+    final int index1 = (_perm[index0] & 0x0E) >> 1;
+    final Point pnt = _gradients[index1];
     return pnt.x * delta.x + pnt.y * delta.y;
   }
 
-  double _attnValue(Point grid, Point delta) {
-    double attn = delta.attn;
+  /// Contributes a point into the noise value if the attenuation is positive.
+  void _contribute(double dx, double dy) {
+    final Point delta = new Point(dx, dy);
+    final Point shifted = _origin - delta - _pntSquish * delta.sum;
+    final double attn = shifted.attn;
     if (attn > 0.0) {
-      double attn2 = attn * attn;
-      return attn2 * attn2 * _extrapolate(grid, delta);
+      final double attn2 = attn * attn;
+      _value += attn2 * attn2 * _extrapolate(_grid + delta, shifted);
     }
-    return 0.0;
   }
 
-  // Compute 2D OpenSimplex Noise.
-  double eval(Point input) {
-    // Place input coordinates onto grid.
-    double stretchOffset = input.sum * _stretch;
-    Point stretched = input.add(stretchOffset, stretchOffset);
-
-    // Floor to get grid coordinates of rhombus (stretched square) super-cell origin.
-    Point grid = stretched.floor;
-
-    // Skew out to get actual coordinates of rhombus origin.
-    double squishOffset = grid.sum * _squish;
-    Point squashed = grid.add(squishOffset, squishOffset);
-
-    // Compute grid coordinates relative to rhombus origin.
-    Point ins = stretched - grid;
+  /// Compute 2D OpenSimplex noise value.
+  double eval() {
+    _contribute(1.0, 0.0);
+    _contribute(0.0, 1.0);
 
     // Sum those together to get a value that determines the region.
-    double inSum = ins.sum;
-
-    // Positions relative to origin point.
-    Point origin = input - squashed;
-
-    double value = 0.0;
-
-    // Contribution (1, 0)
-    value += _attnValue(grid.add(1.0, 0.0), origin.add(-1.0 - _squish, -_squish));
-
-    // Contribution (0, 1)
-    value += _attnValue(grid.add(0.0, 1.0), origin.add(-_squish, -1.0 - _squish));
-
-    Extra extra = new Extra(grid, origin);
+    final double inSum = _ins.sum;
     if (inSum <= 1.0) {
       // Inside the triangle (2-Simplex) at (0, 0)
-      double zins = 1.0 - inSum;
-      if (zins > ins.x || zins > ins.y) {
-        // (0,0) is one of the closest two triangular vertices
-        if (ins.x > ins.y) {
-          extra.add(1.0, -1.0, -1.0, 1.0);
-        } else {
-          extra.add(-1.0, 1.0, 1.0, -1.0);
-        }
-      } else {
-        // (1,0) and (0,1) are the closest two vertices.
-        extra.add(1.0, 1.0, -1.0 - _squish2, -1.0 - _squish2);
-      }
-
-      // Contribution (0,0)
-      value += _attnValue(grid, origin);
-    } else {
-      // Inside the triangle (2-Simplex) at (1,1)
-      double zins = 2 - inSum;
-      if (zins < ins.x || zins < ins.y) {
-        // (0,0) is one of the closest two triangular vertices
-        if (ins.x > ins.y) {
-          extra.add(2.0, 0.0, -2.0 - _squish2, -_squish2);
-        } else {
-          extra.add(0.0, 2.0, -_squish2, -2.0 - _squish2);
-        }
+      final double zins = 1.0 - inSum;
+      if (zins > _ins.x || zins > _ins.y) {
+        // (0, 0) is one of the closest two triangular vertices
+        if (_ins.x > _ins.y)
+          _contribute(1.0, -1.0);
+        else
+          _contribute(-1.0, 1.0);
       } else {
         // (1, 0) and (0, 1) are the closest two vertices.
-        extra.add(0.0, 0.0, 0.0, 0.0);
+        _contribute(1.0, 1.0);
       }
 
-      // Contribution (1,1)
-      value += _attnValue(grid.add(1.0, 1.0), origin.add(-1.0 - _squish2, -1.0 - _squish2));
+      _contribute(0.0, 0.0);
+    } else {
+      // Inside the triangle (2-Simplex) at (1, 1)
+      final double zins = 2.0 - inSum;
+      if (zins < _ins.x || zins < _ins.y) {
+        // (0, 0) is one of the closest two triangular vertices
+        if (_ins.x > _ins.y)
+          _contribute(2.0, 0.0);
+        else
+          _contribute(0.0, 2.0);
+      } else {
+        // (1, 0) and (0, 1) are the closest two vertices.
+        _contribute(0.0, 0.0);
+      }
+
+      _contribute(1.0, 1.0);
     }
 
-    // Extra Vertex
-    value += _attnValue(extra.grid, extra.delta);
-
-    return value / _norm;
+    return _value / _norm;
   }
 }

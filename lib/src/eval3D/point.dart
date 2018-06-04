@@ -13,14 +13,6 @@ class Point {
 
   double get attn => 2.0 - (x * x) - (y * y) - (z * z);
 
-  Point add(double dx, double dy, double dz) => new Point(x + dx, y + dy, z + dz);
-
-  Point addX(double dx) => new Point(x + dx, y, z);
-
-  Point addY(double dy) => new Point(x, y + dy, z);
-
-  Point addZ(double dz) => new Point(x, y, z + dz);
-
   Point operator +(Point other) => new Point(x + other.x, y + other.y, z + other.z);
 
   Point operator -(Point other) => new Point(x - other.x, y - other.y, z - other.z);

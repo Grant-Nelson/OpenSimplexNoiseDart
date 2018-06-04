@@ -13,7 +13,7 @@ part 'data4D.dart';
 void main() {
   check2D();
   check3D();
-  //check4D();
+  check4D();
 }
 
 void check2D() {
@@ -49,17 +49,17 @@ void check3D() {
 }
 
 void check4D() {
-  // print("Check 4D Noise");
-  // OpenSimplexNoise noise = new OpenSimplexNoise();
-  // for (Data4D datum in get4DSamples()) {
-  //   double result = noise.eval4D(datum.x, datum.y, datum.z, datum.w);
-  //   if ((result - datum.exp).abs() > 1.0e-12) {
-  //     print("FAILED: eval4D(${datum.x}, ${datum.y}, ${datum.z}, ${datum.w})");
-  //     print("        expected: ${datum.exp}");
-  //     print("        result:   $result");
-  //     print("        diff:     ${(result - datum.exp).abs()}");
-  //     return;
-  //   }
-  // }
-  // print("PASSED");
+  print("Check 4D Noise");
+  OpenSimplexNoise noise = new OpenSimplexNoise();
+  for (Data4D datum in get4DSamples()) {
+    double result = noise.eval4D(datum.x, datum.y, datum.z, datum.w);
+    if ((result - datum.exp).abs() > 1.0e-12) {
+      print("FAILED: eval4D(${datum.x}, ${datum.y}, ${datum.z}, ${datum.w})");
+      print("        expected: ${datum.exp}");
+      print("        result:   $result");
+      print("        diff:     ${(result - datum.exp).abs()}");
+      return;
+    }
+  }
+  print("PASSED");
 }
