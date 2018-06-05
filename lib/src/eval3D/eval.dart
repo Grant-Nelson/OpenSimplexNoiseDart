@@ -2,21 +2,21 @@ library eval3D;
 
 part 'point.dart';
 
-// Open Simplex for 3D Noise
+/// Open Simplex for 3D Noise
 class Eval {
-  // (1 / sqrt(3 + 1) - 1) / 3
+  /// (1 / sqrt(3 + 1) - 1) / 3
   static const double _stretch = -1.0 / 6.0;
 
-  // (sqrt(3 + 1) - 1) / 3
+  /// (sqrt(3 + 1) - 1) / 3
   static const double _squish = 1.0 / 3.0;
 
-  // Normalizing scalar to the result
+  /// Normalizing scalar to the result
   static const double _norm = 103.0;
 
-  // Gradients for 3D. They approximate the directions to the
-  // vertices of a rhombicuboctahedron from the center, skewed so
-  // that the triangular and square facets can be inscribed inside
-  // circles of the same radius.
+  /// Gradients for 3D. They approximate the directions to the
+  /// vertices of a rhombicuboctahedron from the center, skewed so
+  /// that the triangular and square facets can be inscribed inside
+  /// circles of the same radius.
   static List<Point> _gradients = [
     new Point(-11.0, 4.0, 4.0),
     new Point(-4.0, 11.0, 4.0),
@@ -44,7 +44,10 @@ class Eval {
     new Point(4.0, -4.0, -11.0)
   ];
 
+  /// Predefined point with each componenent equal to the [_stretch] value.
   static final Point _pntStretch = new Point(_stretch, _stretch, _stretch);
+  
+  /// Predefined point with each componenent equal to the [_squish] value.
   static final Point _pntSquish = new Point(_squish, _squish, _squish);
 
   /// Noise permutation set.

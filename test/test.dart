@@ -9,7 +9,7 @@ part 'data4D.dart';
 /// Tests for OpenSimplex noise,
 /// based on the output of the Java implementation.
 ///
-/// Test values borrowed from https://github.com/ojrac/opensimplex-go/blob/master/opensimplex_test.go
+/// Test values borrowed from https://github.com/ojrac/opensimplex-go
 void main() {
   check2D();
   check3D();

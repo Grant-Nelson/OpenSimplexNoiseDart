@@ -10,3 +10,4 @@ alternative to Perlin and Simplex noise.
 More information at:
  - http://uniblock.tumblr.com/post/97868843242/noise
  - https://gist.github.com/KdotJPG/b1270127455a94ac5d19
+ - https://github.com/ojrac/opensimplex-go

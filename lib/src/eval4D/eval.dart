@@ -2,21 +2,21 @@ library eval4D;
 
 part 'point.dart';
 
-// Open Simplex for 4D Noise
+/// Open Simplex for 4D Noise
 class Eval {
-  // (1 / sqrt(4 + 1) - 1) / 4;
+  /// (1 / sqrt(4 + 1) - 1) / 4;
   static const double _stretch = -0.138196601125011;
 
-  // (sqrt(4 + 1) - 1) / 4;
+  /// (sqrt(4 + 1) - 1) / 4;
   static const double _squish = 0.309016994374947;
 
-  // Normalizing scalar to the result
+  /// Normalizing scalar to the result
   static const double _norm = 30.0;
 
-  // Gradients for 4D. They approximate the directions to the
-  // vertices of a disprismatotesseractihexadecachoron from the center,
-  // skewed so that the tetrahedral and cubic facets can be inscribed inside
-  // spheres of the same radius.
+  /// Gradients for 4D. They approximate the directions to the
+  /// vertices of a disprismatotesseractihexadecachoron from the center,
+  /// skewed so that the tetrahedral and cubic facets can be inscribed inside
+  /// spheres of the same radius.
   static List<Point> _gradients = [
     new Point(3.0, 1.0, 1.0, 1.0),
     new Point(1.0, 3.0, 1.0, 1.0),
@@ -84,7 +84,10 @@ class Eval {
     new Point(-1.0, -1.0, -1.0, -3.0)
   ];
 
+  /// Predefined point with each componenent equal to the [_stretch] value.
   static final Point _pntStretch = new Point(_stretch, _stretch, _stretch, _stretch);
+  
+  /// Predefined point with each componenent equal to the [_squish] value.
   static final Point _pntSquish = new Point(_squish, _squish, _squish, _squish);
 
   /// Noise permutation set.
@@ -124,6 +127,7 @@ class Eval {
     return new Eval._(perm, grid, origin, ins);
   }
 
+  /// Extrapolates the offset grid point to the permutation of noise.
   double _extrapolate(Point grid, Point delta) {
     final int index0 = (_perm[grid.x.toInt() & 0xFF] + grid.y.toInt()) & 0xFF;
     final int index1 = (_perm[index0] + grid.z.toInt()) & 0xFF;
@@ -143,7 +147,7 @@ class Eval {
     }
   }
 
-  // Calculate 4D OpenSimplex noise value.
+  /// Calculate 4D OpenSimplex noise value.
   double eval() {
     // Sum those together to get a value that determines the region.
     final double inSum = _ins.sum;

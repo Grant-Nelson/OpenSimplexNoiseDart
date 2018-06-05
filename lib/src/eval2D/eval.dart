@@ -26,7 +26,10 @@ class Eval {
     new Point(-2.0, -5.0)
   ];
 
+  /// Predefined point with each componenent equal to the [_stretch] value.
   static final Point _pntStretch = new Point(_stretch, _stretch);
+  
+  /// Predefined point with each componenent equal to the [_squish] value.
   static final Point _pntSquish = new Point(_squish, _squish);
 
   /// Noise permutation set.
