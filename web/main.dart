@@ -28,9 +28,9 @@ void main() {
     for (int j = 0; j < height; j++) {
       final double y = j.toDouble() * scalar;
 
-      double red = noise.eval3D(x, y, compOff) * 255.0;
-      double green = noise.eval3D(x, y, 2.0 * compOff) * 255.0;
-      double blue = noise.eval3D(x, y, 3.0 * compOff) * 255.0;
+      double red = (noise.eval3D(x, y, compOff) * 0.5 + 0.5) * 255.0;
+      double green = (noise.eval3D(x, y, 2.0 * compOff) * 0.5 + 0.5) * 255.0;
+      double blue = (noise.eval3D(x, y, 3.0 * compOff) * 0.5 + 0.5) * 255.0;
 
       context.fillStyle = 'rgb(${red.toInt()}, ${green.toInt()}, ${blue.toInt()})';
       context.fillRect(i, j, 1, 1);
