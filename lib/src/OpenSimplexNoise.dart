@@ -26,8 +26,14 @@ class OpenSimplexNoise {
     List<int> source = new List<int>(256);
     for (int i = 0; i < 256; i++) source[i] = i;
 
-    const int seedMul = 6364136223846793005;
-    const int seedAdd = 1442695040888963407;
+    // The following parsers may seem silly but these parse allow 64-bit integers to be initialized
+    // when running in an environment which allows 64-bit integers, such as the console.
+    // In a 64-bit environment this Open Simplex Noise gets the same results as any other.
+    // However, in JS there are only 53-bit integers and the dart compiler complains
+    // about this value being used, so the `int.parse` will return a valid 59-bit number which
+    // will result in a functional Open Simplex Noise but with different results from others.
+    final int seedMul = int.parse("6364136223846793005");
+    final int seedAdd = int.parse("1442695040888963407");
     seed = (seed * seedMul + seedAdd).toSigned(64);
     seed = (seed * seedMul + seedAdd).toSigned(64);
     seed = (seed * seedMul + seedAdd).toSigned(64);

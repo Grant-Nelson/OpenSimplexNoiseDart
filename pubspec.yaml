@@ -2,6 +2,7 @@ name: OpenSimplexNoiseDart
 version: 1.0.0
 description: Open Simplex Noise implemented in Dart
 environment:
-  sdk: '>=1.0.0 <2.0.0'
+  sdk: '>=2.0.0'
 dependencies:
-  browser: any
+  build_runner: ^0.10.0
+  build_web_compilers: ^0.4.0
