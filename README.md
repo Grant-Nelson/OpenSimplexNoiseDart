@@ -26,6 +26,6 @@ alternative to Perlin and Simplex noise.
 
 ## More information
 
-- http://uniblock.tumblr.com/post/97868843242/noise
-- https://gist.github.com/KdotJPG/b1270127455a94ac5d19
-- https://github.com/ojrac/opensimplex-go
+- [Uniblock Dev Blog](http://uniblock.tumblr.com/post/97868843242/noise)
+- [KdotJPG/OpenSimplexNoise.java](https://gist.github.com/KdotJPG/b1270127455a94ac5d19)
+- [ojrac/opensimplex-go](https://github.com/ojrac/opensimplex-go)
