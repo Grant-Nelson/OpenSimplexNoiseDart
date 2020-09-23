@@ -12,7 +12,7 @@ alternative to Perlin and Simplex noise.
 ## Installing
 
 - Clone this repo locally
-- Install [Dart 2.0](https://webdev.dartlang.org/)
+- Install [Dart 2](https://webdev.dartlang.org/)
 - Run `pub get`
 
 ## Build for example
