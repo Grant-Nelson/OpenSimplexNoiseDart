@@ -105,13 +105,9 @@ class Eval {
   /// The accumulator of the noise value.
   double _value;
 
-  // TODO: REMOVE
-  bool _done;
-
   /// Contructs a new evaluator for 3D noise.
   Eval._(this._perm, this._grid, this._origin, this._ins) {
     _value = 0.0;
-    _done = false;
   }
 
   /// Creates a new evaluator for 3D noise and calcuate the initial values.
