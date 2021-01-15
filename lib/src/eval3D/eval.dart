@@ -18,31 +18,59 @@ class Eval {
   /// that the triangular and square facets can be inscribed inside
   /// circles of the same radius.
   static List<Point> _gradients = [
-    new Point(-11.0, 4.0, 4.0),
-    new Point(-4.0, 11.0, 4.0),
-    new Point(-4.0, 4.0, 11.0),
-    new Point(11.0, 4.0, 4.0),
-    new Point(4.0, 11.0, 4.0),
-    new Point(4.0, 4.0, 11.0),
-    new Point(-11.0, -4.0, 4.0),
-    new Point(-4.0, -11.0, 4.0),
-    new Point(-4.0, -4.0, 11.0),
-    new Point(11.0, -4.0, 4.0),
-    new Point(4.0, -11.0, 4.0),
-    new Point(4.0, -4.0, 11.0),
-    new Point(-11.0, 4.0, -4.0),
-    new Point(-4.0, 11.0, -4.0),
-    new Point(-4.0, 4.0, -11.0),
-    new Point(11.0, 4.0, -4.0),
-    new Point(4.0, 11.0, -4.0),
-    new Point(4.0, 4.0, -11.0),
-    new Point(-11.0, -4.0, -4.0),
-    new Point(-4.0, -11.0, -4.0),
-    new Point(-4.0, -4.0, -11.0),
-    new Point(11.0, -4.0, -4.0),
-    new Point(4.0, -11.0, -4.0),
-    new Point(4.0, -4.0, -11.0)
-  ];
+    new Point(-11.0,   4.0,   4.0),
+    new Point( -4.0,  11.0,   4.0),
+    new Point( -4.0,   4.0,  11.0),
+    new Point( 11.0,   4.0,   4.0),
+    new Point(  4.0,  11.0,   4.0),
+    new Point(  4.0,   4.0,  11.0),
+    new Point(-11.0,  -4.0,   4.0),
+    new Point( -4.0, -11.0,   4.0),
+    new Point( -4.0,  -4.0,  11.0),
+    new Point( 11.0,  -4.0,   4.0),
+    new Point(  4.0, -11.0,   4.0),
+    new Point(  4.0,  -4.0,  11.0),
+    new Point(-11.0,   4.0,  -4.0),
+    new Point( -4.0,  11.0,  -4.0),
+    new Point( -4.0,   4.0, -11.0),
+    new Point( 11.0,   4.0,  -4.0),
+    new Point(  4.0,  11.0,  -4.0),
+    new Point(  4.0,   4.0, -11.0),
+    new Point(-11.0,  -4.0,  -4.0),
+    new Point( -4.0, -11.0,  -4.0),
+    new Point( -4.0,  -4.0, -11.0),
+    new Point( 11.0,  -4.0,  -4.0),
+    new Point(  4.0, -11.0,  -4.0),
+    new Point(  4.0,  -4.0, -11.0)];
+
+  /// Deltas for 2D contributions to the value.
+  static List<Point> _deltas = [
+    new Point( 1.0, -1.0,  0.0),
+    new Point( 1.0,  0.0, -1.0),
+    new Point(-1.0,  1.0,  0.0),
+    new Point( 0.0,  1.0, -1.0),
+    new Point(-1.0,  0.0,  1.0),
+    new Point( 0.0, -1.0,  1.0),
+    new Point( 1.0,  1.0,  0.0),
+    new Point( 1.0,  1.0, -1.0),
+    new Point( 1.0,  0.0,  1.0),
+    new Point( 1.0, -1.0,  1.0),
+    new Point( 0.0,  1.0,  1.0),
+    new Point(-1.0,  1.0,  1.0),
+    new Point( 0.0,  0.0,  0.0),
+    new Point( 1.0,  0.0,  0.0),
+    new Point( 0.0,  1.0,  0.0),
+    new Point( 0.0,  0.0,  1.0),
+    new Point( 2.0,  1.0,  0.0),
+    new Point( 1.0,  2.0,  0.0),
+    new Point( 2.0,  0.0,  1.0),
+    new Point( 1.0,  0.0,  2.0),
+    new Point( 0.0,  2.0,  1.0),
+    new Point( 0.0,  1.0,  2.0),
+    new Point( 2.0,  0.0,  0.0),
+    new Point( 0.0,  2.0,  0.0),
+    new Point( 0.0,  0.0,  2.0),
+    new Point( 1.0,  1.0,  1.0)];
 
   /// Predefined point with each componenent equal to the [_stretch] value.
   static final Point _pntStretch = new Point(_stretch, _stretch, _stretch);
@@ -85,16 +113,14 @@ class Eval {
 
   /// Extrapolates the offset grid point to the permutation of noise.
   double _extrapolate(Point grid, Point delta) {
-    final int index0 = (_perm[grid.x.toInt() & 0xFF] + grid.y.toInt()) & 0xFF;
-    final int index1 = (_perm[index0] + grid.z.toInt()) & 0xFF;
-    final int index2 = _perm[index1] % _gradients.length;
-    final Point pnt = _gradients[index2];
-    return pnt.x * delta.x + pnt.y * delta.y + pnt.z * delta.z;
+    final int index = grid.gradientIndex(_perm) % _gradients.length;
+    final Point pnt = _gradients[index];
+    return pnt.dot(delta);
   }
 
   /// Contributes a point into the noise value if the attenuation is positive.
-  void _contribute(double dx, double dy, double dz) {
-    final Point delta = new Point(dx, dy, dz);
+  void _contribute(int index) {
+    final Point delta = _deltas[index];
     final Point shifted = _origin - delta - _pntSquish * delta.sum;
     final double attn = shifted.attn;
     if (attn > 0.0) {
@@ -131,37 +157,37 @@ class Eval {
         // Our other closest vertex is the closest out of a and b.
         final int closest = (bScore > aScore) ? bPoint : aPoint;
         if (closest == 1) {
-          _contribute(1.0, -1.0, 0.0);
-          _contribute(1.0, 0.0, -1.0);
+          _contribute(0);
+          _contribute(1);
         } else if (closest == 2) {
-          _contribute(-1.0, 1.0, 0.0);
-          _contribute(0.0, 1.0, -1.0);
+          _contribute(2);
+          _contribute(3);
         } else {
           // closest == 4
-          _contribute(-1.0, 0.0, 1.0);
-          _contribute(0.0, -1.0, 1.0);
+          _contribute(4);
+          _contribute(5);
         }
       } else {
         // (0, 0, 0) is not one of the closest two tetrahedral vertices.
         // Our two extra vertices are determined by the closest two.
         final int closest = aPoint | bPoint;
         if (closest == 3) {
-          _contribute(1.0, 1.0, 0.0);
-          _contribute(1.0, 1.0, -1.0);
+          _contribute(6);
+          _contribute(7);
         } else if (closest == 5) {
-          _contribute(1.0, 0.0, 1.0);
-          _contribute(1.0, -1.0, 1.0);
+          _contribute(8);
+          _contribute(9);
         } else {
           // closest == 6
-          _contribute(0.0, 1.0, 1.0);
-          _contribute(-1.0, 1.0, 1.0);
+          _contribute(10);
+          _contribute(11);
         }
       }
 
-      _contribute(0.0, 0.0, 0.0);
-      _contribute(1.0, 0.0, 0.0);
-      _contribute(0.0, 1.0, 0.0);
-      _contribute(0.0, 0.0, 1.0);
+      _contribute(12);
+      _contribute(13);
+      _contribute(14);
+      _contribute(15);
     } else if (inSum >= 2.0) {
       // Inside the tetrahedron (3-Simplex) at (1, 1, 1)
 
@@ -186,37 +212,37 @@ class Eval {
         // Our other closest vertex is the closest out of a and b.
         final int closest = (bScore < aScore ? bPoint : aPoint);
         if (closest == 3) {
-          _contribute(2.0, 1.0, 0.0);
-          _contribute(1.0, 2.0, 0.0);
+          _contribute(16);
+          _contribute(17);
         } else if (closest == 5) {
-          _contribute(2.0, 0.0, 1.0);
-          _contribute(1.0, 0.0, 2.0);
+          _contribute(18);
+          _contribute(19);
         } else {
           // closest == 6
-          _contribute(0.0, 2.0, 1.0);
-          _contribute(0.0, 1.0, 2.0);
+          _contribute(20);
+          _contribute(21);
         }
       } else {
         // (1, 1, 1) is not one of the closest two tetrahedral vertices.
         // Our two extra vertices are determined by the closest two.
         final int closest = aPoint & bPoint;
         if (closest == 1) {
-          _contribute(1.0, 0.0, 0.0);
-          _contribute(2.0, 0.0, 0.0);
+          _contribute(13);
+          _contribute(22);
         } else if (closest == 2) {
-          _contribute(0.0, 1.0, 0.0);
-          _contribute(0.0, 2.0, 0.0);
+          _contribute(14);
+          _contribute(23);
         } else {
           // closest == 4
-          _contribute(0.0, 0.0, 1.0);
-          _contribute(0.0, 0.0, 2.0);
+          _contribute(15);
+          _contribute(24);
         }
       }
 
-      _contribute(1.0, 1.0, 0.0);
-      _contribute(1.0, 0.0, 1.0);
-      _contribute(0.0, 1.0, 1.0);
-      _contribute(1.0, 1.0, 1.0);
+      _contribute(6);
+      _contribute(8);
+      _contribute(10);
+      _contribute(25);
     } else {
       // Inside the octahedron (Rectified 3-Simplex) in between.
       double aScore, bScore;
@@ -280,30 +306,30 @@ class Eval {
           // Both closest points on (1, 1, 1) side
 
           // One of the two extra points is (1, 1, 1)
-          _contribute(1.0, 1.0, 1.0);
+          _contribute(25);
 
           // Other extra point is based on the shared axis.
           int closest = aPoint & bPoint;
           if (closest == 1)
-            _contribute(2.0, 0.0, 0.0);
+            _contribute(22);
           else if (closest == 2)
-            _contribute(0.0, 2.0, 0.0);
+            _contribute(23);
           else // closest == 4
-            _contribute(0.0, 0.0, 2.0);
+            _contribute(24);
         } else {
           // Both closest points on (0, 0, 0) side
 
           // One of the two extra points is (0, 0, 0)
-          _contribute(0.0, 0.0, 0.0);
+          _contribute(12);
 
           // Other extra point is based on the omitted axis.
           int closest = aPoint | bPoint;
           if (closest == 3)
-            _contribute(1.0, 1.0, -1.0);
+            _contribute(7);
           else if (closest == 5)
-            _contribute(1.0, -1.0, 1.0);
+            _contribute(9);
           else // closest == 6
-            _contribute(-1.0, 1.0, 1.0);
+            _contribute(11);
         }
       } else {
         // One point on (0, 0, 0) side, one point on (1, 1, 1) side
@@ -318,27 +344,27 @@ class Eval {
 
         // One contribution is a permutation of (1, 1, -1)
         if (c1 == 3)
-          _contribute(1.0, 1.0, -1.0);
+          _contribute(7);
         else if (c1 == 5)
-          _contribute(1.0, -1.0, 1.0);
+          _contribute(9);
         else // c1 == 6
-          _contribute(-1.0, 1.0, 1.0);
+          _contribute(11);
 
         // One contribution is a permutation of (0, 0, 2)
         if (c2 == 1)
-          _contribute(2.0, 0.0, 0.0);
+          _contribute(22);
         else if (c2 == 2)
-          _contribute(0.0, 2.0, 0.0);
+          _contribute(23);
         else // c2 == 4
-          _contribute(0.0, 0.0, 2.0);
+          _contribute(24);
       }
 
-      _contribute(1.0, 0.0, 0.0);
-      _contribute(0.0, 1.0, 0.0);
-      _contribute(0.0, 0.0, 1.0);
-      _contribute(1.0, 1.0, 0.0);
-      _contribute(1.0, 0.0, 1.0);
-      _contribute(0.0, 1.0, 1.0);
+      _contribute(13);
+      _contribute(14);
+      _contribute(15);
+      _contribute(6);
+      _contribute(8);
+      _contribute(10);
     }
     return _value / _norm;
   }

@@ -22,6 +22,17 @@ class Point {
 
   /// Gets the attenuation factor of the point assuming the point is offset from an origin.
   double get attn => 2.0 - (x * x) - (y * y) - (z * z);
+  
+  /// Gets the dot product between these two points.
+  double dot(Point other) => x * other.x + y * other.y + z * other.z;
+
+  /// Determines the gradient index this point represents using the given noise permutation.
+  int gradientIndex(List<int> perm) {
+    int index = x.toInt();
+    index = perm[index & 0xFF] + y.toInt();
+    index = perm[index & 0xFF] + z.toInt();
+    return perm[index & 0xFF];
+  }
 
   /// Creates a point where each component is the sum of the given two points' components.
   Point operator +(Point other) => new Point(x + other.x, y + other.y, z + other.z);

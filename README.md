@@ -1,13 +1,13 @@
 # OpenSimplexNoise
 
 This generates smoothly-changing deterministic random values in
-2 or 3 dimensions. This can be used for procedurally generated textures,
+2, 3, or 4 dimensions. This can be used for procedurally generated textures,
 shapes, or terrain.
 
 ![noise comparisons](noise.png)
 
 OpenSimplex noise is a Dart implementation of Kurt Spencer's patent-free
-alternative to Perlin and Simplex noise.
+alternative to Classic Perlin and Simplex noise.
 
 ## Installing
 

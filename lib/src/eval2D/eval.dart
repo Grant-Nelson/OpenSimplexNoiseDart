@@ -16,15 +16,25 @@ class Eval {
   /// Gradients for 2D. They approximate the directions to the
   /// vertices of an octagon from the center.
   static List<Point> _gradients = [
-    new Point(5.0, 2.0),
-    new Point(2.0, 5.0),
-    new Point(-5.0, 2.0),
-    new Point(-2.0, 5.0),
-    new Point(5.0, -2.0),
-    new Point(2.0, -5.0),
+    new Point( 5.0,  2.0),
+    new Point( 2.0,  5.0),
+    new Point(-5.0,  2.0),
+    new Point(-2.0,  5.0),
+    new Point( 5.0, -2.0),
+    new Point( 2.0, -5.0),
     new Point(-5.0, -2.0),
-    new Point(-2.0, -5.0)
-  ];
+    new Point(-2.0, -5.0)];
+
+  /// Deltas for 2D contributions to the value.
+  static List<Point> _deltas = [
+    new Point( 1.0,  0.0),
+    new Point( 0.0,  1.0),
+    new Point( 1.0, -1.0),
+    new Point(-1.0,  1.0),
+    new Point( 1.0,  1.0),
+    new Point( 0.0,  0.0),
+    new Point( 2.0,  0.0),
+    new Point( 0.0,  2.0)];
 
   /// Predefined point with each componenent equal to the [_stretch] value.
   static final Point _pntStretch = new Point(_stretch, _stretch);
@@ -67,15 +77,14 @@ class Eval {
 
   /// Extrapolates the offset grid point to the permutation of noise.
   double _extrapolate(Point grid, Point delta) {
-    final int index0 = (_perm[grid.x.toInt() & 0xFF] + grid.y.toInt()) & 0xFF;
-    final int index1 = (_perm[index0] & 0x0E) >> 1;
-    final Point pnt = _gradients[index1];
-    return pnt.x * delta.x + pnt.y * delta.y;
+    final int index = (grid.gradientIndex(_perm) & 0x0E) >> 1;
+    final Point pnt = _gradients[index];
+    return pnt.dot(delta);
   }
 
   /// Contributes a point into the noise value if the attenuation is positive.
-  void _contribute(double dx, double dy) {
-    final Point delta = new Point(dx, dy);
+  void _contribute(int index) {
+    final Point delta = _deltas[index];
     final Point shifted = _origin - delta - _pntSquish * delta.sum;
     final double attn = shifted.attn;
     if (attn > 0.0) {
@@ -86,8 +95,8 @@ class Eval {
 
   /// Compute 2D OpenSimplex noise value.
   double eval() {
-    _contribute(1.0, 0.0);
-    _contribute(0.0, 1.0);
+    _contribute(0);
+    _contribute(1);
 
     // Sum those together to get a value that determines the region.
     final double inSum = _ins.sum;
@@ -97,30 +106,30 @@ class Eval {
       if (zins > _ins.x || zins > _ins.y) {
         // (0, 0) is one of the closest two triangular vertices
         if (_ins.x > _ins.y)
-          _contribute(1.0, -1.0);
+          _contribute(2);
         else
-          _contribute(-1.0, 1.0);
+          _contribute(3);
       } else {
         // (1, 0) and (0, 1) are the closest two vertices.
-        _contribute(1.0, 1.0);
+        _contribute(4);
       }
 
-      _contribute(0.0, 0.0);
+      _contribute(5);
     } else {
       // Inside the triangle (2-Simplex) at (1, 1)
       final double zins = 2.0 - inSum;
       if (zins < _ins.x || zins < _ins.y) {
         // (0, 0) is one of the closest two triangular vertices
         if (_ins.x > _ins.y)
-          _contribute(2.0, 0.0);
+          _contribute(6);
         else
-          _contribute(0.0, 2.0);
+          _contribute(7);
       } else {
         // (1, 0) and (0, 1) are the closest two vertices.
-        _contribute(0.0, 0.0);
+        _contribute(5);
       }
 
-      _contribute(1.0, 1.0);
+      _contribute(4);
     }
 
     return _value / _norm;
