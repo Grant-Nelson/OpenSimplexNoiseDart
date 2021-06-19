@@ -55,12 +55,10 @@ class Eval {
   final Point _ins;
 
   /// The accumulator of the noise value.
-  double _value;
+  double _value = 0.0;
 
   /// Contructs a new evaluator for 2D noise.
-  Eval._(this._perm, this._grid, this._origin, this._ins) {
-    _value = 0.0;
-  }
+  Eval._(this._perm, this._grid, this._origin, this._ins);
 
   /// Creates a new evaluator for 2D noise and calcuate the initial values.
   factory Eval(List<int> perm, Point input) {
