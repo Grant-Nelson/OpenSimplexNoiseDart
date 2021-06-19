@@ -22,8 +22,8 @@ class OpenSimplexNoise {
   // Initializes using a permutation array generated from a seed.
   // The seed is 53-bits when Dart has been transpiled into JS.
   factory OpenSimplexNoise([int seed = 0]) {
-    List<int> perm = new List<int>(256);
-    List<int> source = new List<int>(256);
+    List<int> perm = new List<int>.filled(256, 0);
+    List<int> source = new List<int>.filled(256, 0);
     for (int i = 0; i < 256; i++) source[i] = i;
 
     // The following parsers may seem silly but these parse allow 64-bit integers to be initialized

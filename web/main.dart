@@ -6,22 +6,22 @@ import 'package:OpenSimplexNoiseDart/OpenSimplexNoise.dart';
 void main() {
   document.title = "Open Simplex Noise";
 
-  CanvasElement canvas = new Element.canvas();
+  CanvasElement canvas = new CanvasElement();
   canvas.style
     ..width    = "100%"
     ..height   = "100%"
     ..margin   = "0px"
     ..padding  = "0px"
     ..overflow = "hidden";
-  document.body.append(canvas);
+  document.body?.append(canvas);
 
-  CanvasRenderingContext2D context = canvas.getContext('2d');
+  CanvasRenderingContext2D context = canvas.getContext('2d') as CanvasRenderingContext2D;
   OpenSimplexNoise noise = new OpenSimplexNoise();
 
   final double scalar  = 0.08;
   final double compOff = 0.5;
-  final int width  = canvas.width;
-  final int height = canvas.height;
+  final int width  = canvas.width ?? 100;
+  final int height = canvas.height ?? 100;
 
   for (int i = 0; i < width; i++) {
     final double x = i.toDouble() * scalar;
