@@ -12,7 +12,7 @@ alternative to Classic Perlin and Simplex noise.
 ## Usage
 
 ```dart
-import 'package:OpenSimplexNoise/OpenSimplexNoise.dart';
+import 'package:open_simplex_noise/open_simplex_noise.dart';
 
 OpenSimplexNoise noise = new OpenSimplexNoise();
 
@@ -28,11 +28,6 @@ void main() {
 - Clone this repo locally
 - Install [Dart 2](https://webdev.dartlang.org/)
 - Run `pub get`
-
-## Build for example
-
-- Run `webdev serve` or `pub run webdev serve`
-- Open `http://localhost:8080/`
 
 ## Run unit-tests
 

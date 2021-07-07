@@ -1,4 +1,4 @@
-library OpenSimplexNoise;
+library open_simplex_noise;
 
 import 'eval2D/eval.dart' as e2D;
 import 'eval3D/eval.dart' as e3D;
