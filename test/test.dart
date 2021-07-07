@@ -1,6 +1,6 @@
 library OpenSimplexNoise.test;
 
-import 'package:OpenSimplexNoiseDart/OpenSimplexNoise.dart';
+import 'package:open_simplex_noise/OpenSimplexNoise.dart';
 
 part 'data2D.dart';
 part 'data3D.dart';

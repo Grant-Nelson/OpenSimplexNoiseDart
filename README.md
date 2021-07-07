@@ -9,6 +9,20 @@ shapes, or terrain.
 OpenSimplex noise is a Dart implementation of Kurt Spencer's patent-free
 alternative to Classic Perlin and Simplex noise.
 
+## Usage
+
+```dart
+import 'package:OpenSimplexNoise/OpenSimplexNoise.dart';
+
+OpenSimplexNoise noise = new OpenSimplexNoise();
+
+void main() {
+  ...
+  double value = noise.eval3D(x, y, z);
+  ...
+}
+```
+
 ## Installing
 
 - Clone this repo locally
@@ -17,7 +31,7 @@ alternative to Classic Perlin and Simplex noise.
 
 ## Build for example
 
-- Run `webdev serve`
+- Run `webdev serve` or `pub run webdev serve`
 - Open `http://localhost:8080/`
 
 ## Run unit-tests

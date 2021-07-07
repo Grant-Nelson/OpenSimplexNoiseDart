@@ -26,7 +26,7 @@ class OpenSimplexNoise {
     List<int> source = new List<int>.filled(256, 0);
     for (int i = 0; i < 256; i++) source[i] = i;
 
-    // The following parsers may seem silly but these parse allow 64-bit integers to be initialized
+    // The following parsers may seem silly but these parses allow 64-bit integers to be initialized
     // when running in an environment which allows 64-bit integers, such as the console.
     // In a 64-bit environment this Open Simplex Noise gets the same results as any other.
     // However, in JS there are only 53-bit integers and the dart compiler complains

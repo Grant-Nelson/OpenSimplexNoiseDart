@@ -1,13 +1,10 @@
-name: OpenSimplexNoiseDart
-version: 2.3.0
+name: open_simplex_noise
+version: 2.3.1
 description: Open Simplex Noise implemented in Dart
+repository: https://github.com/Grant-Nelson/OpenSimplexNoiseDart
 environment:
-  sdk: '>=2.13.3'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  build_runner: '^1.6.2'
-  build_test: '^2.0.0'
-  build_web_compilers: '^2.0.0'
-  
-dev_dependencies:
-  webdev: '^2.7.4'
+  build_runner: ^2.0.5
+  build_web_compilers: ^3.0.0
