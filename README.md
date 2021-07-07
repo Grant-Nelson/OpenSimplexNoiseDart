@@ -1,3 +1,5 @@
+[![Pub](https://img.shields.io/pub/v/open_simplex_noise.svg)](https://pub.dev/packages/open_simplex_noise)
+
 # OpenSimplexNoise
 
 This generates smoothly-changing deterministic random values in
